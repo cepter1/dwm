@@ -60,7 +60,7 @@ static const Layout layouts[] = {
 static const char *dmenucmd[] = { "dmenu_run", "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 static const char *termcmd[]  = { "urxvt", NULL };
 static const char *pcmanfmcmd[] = { "pcmanfm", NULL };
-static const char *firefoxcmd[] = { "firefox", NULL };
+static const char *browsercmd[] = { "librewolf", NULL };
 static const char *slockcmd[] = { "slock", NULL };
 static const char *pavucontrolcmd[] = { "pavucontrol", NULL };
 
@@ -70,7 +70,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,			XK_e,	   spawn,	   {.v = pcmanfmcmd } },
-	{ MODKEY,			XK_w,	   spawn,	   {.v = firefoxcmd } },
+	{ MODKEY,			XK_w,	   spawn,	   {.v = browsercmd } },
 	{ MODKEY,			XK_l,	   spawn,	   {.v = slockcmd } },
         { MODKEY,			XK_s,	   spawn,	   {.v = pavucontrolcmd } },	
 //	{ MODKEY,                       XK_b,      togglebar,      {0} },
@@ -116,7 +116,7 @@ static const Button buttons[] = {
 	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
 	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
 	{ ClkStatusText,	0,		Button2,	spawn,		{.v = pcmanfmcmd } },
-	{ ClkStatusText,	0,		Button2,	spawn,		{.v = firefoxcmd } },
+	{ ClkStatusText,	0,		Button2,	spawn,		{.v = browsercmd } },
 	{ ClkStatusText,	0,		Button2,	spawn,		{.v = slockcmd } },
 	{ ClkStatusText,	0,		Button2,	spawn,		{.v = pavucontrolcmd } },
 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
