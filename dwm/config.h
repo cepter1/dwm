@@ -8,7 +8,7 @@ static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const char *fonts[]          = { "monospace:size=10" }; // "Terminus:size=10"
 static const char dmenufont[]       = "monospace:size=10"; // "Terminus:size=10"
-static const char col_gray1[]       = "#121314";  // changes main color of bar
+static const char col_gray1[]       = "#000000";  // changes main color of bar
 static const char col_gray2[]       = "#000000";  // changes the border color of inactive window 'the window that you don't have your mouse on'
 static const char col_gray3[]       = "#FFFFFF";  // changes the font color for the number that you are not on
 static const char col_gray4[]       = "#FFFFFF";  // changes the font color for the number that you are on and the font color for what app you're using firefox,urxvt
