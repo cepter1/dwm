@@ -4,8 +4,8 @@
 static const unsigned int borderpx  = 2;        /* border pixel of windows */
 static const unsigned int gappx     = 2;        /* gaps size between windows */
 static const unsigned int snap      = 32;       /* snap pixel */
-static const int showbar            = 1;        /* 0 means no bar */
-static const int topbar             = 1;        /* 0 means bottom bar */
+static const int showbar            = 0;        /* 0 means no bar */
+static const int topbar             = 0;        /* 0 means bottom bar */
 static const char *fonts[]          = { "monospace:size=10" }; // "Terminus:size=10"
 static const char dmenufont[]       = "monospace:size=10"; // "Terminus:size=10"
 static const char col_gray1[]       = "#000000";  // changes main color of bar
@@ -57,6 +57,12 @@ static const Layout layouts[] = {
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
+#include <X11/XF86keysym.h>
+static const char *upvol[]      = { "/usr/bin/wpctl",   "set-volume", "@DEFAULT_AUDIO_SINK@",      "5%+",      NULL };
+static const char *downvol[]    = { "/usr/bin/wpctl",   "set-volume", "@DEFAULT_AUDIO_SINK@",      "5%-",      NULL };
+static const char *mutevol[]    = { "/usr/bin/wpctl",   "set-mute",   "@DEFAULT_AUDIO_SINK@",      "toggle",   NULL };
+static const char *brupcmd[] = { "brightnessctl", "set", "1%+", NULL };
+static const char *brdowncmd[] = { "brightnessctl", "set", "1%-", NULL };
 static const char *dmenucmd[] = { "dmenu_run", "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 static const char *termcmd[]  = { "urxvt", NULL };
 static const char *pcmanfmcmd[] = { "pcmanfm", NULL };
@@ -104,6 +110,11 @@ static const Key keys[] = {
 	TAGKEYS(                        XK_7,                      6)
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
+	{ 0,                       XF86XK_AudioLowerVolume, spawn, {.v = downvol } },
+	{ 0,                       XF86XK_AudioMute, spawn, {.v = mutevol } },
+	{ 0,                       XF86XK_AudioRaiseVolume, spawn, {.v = upvol   } },
+	{ 0, XF86XK_MonBrightnessUp,  spawn,          {.v = brupcmd} },
+        { 0, XF86XK_MonBrightnessDown, spawn,          {.v = brdowncmd} },
 	{ MODKEY|ShiftMask,             XK_e,      quit,           {0} },
 };
 
