@@ -2,17 +2,16 @@
 
 /* appearance */
 static const unsigned int borderpx  = 2;        /* border pixel of windows */
-static const unsigned int gappx     = 2;        /* gaps size between windows */
 static const unsigned int snap      = 32;       /* snap pixel */
-static const int showbar            = 0;        /* 0 means no bar */
-static const int topbar             = 0;        /* 0 means bottom bar */
-static const char *fonts[]          = { "monospace:size=10" }; // "Terminus:size=10"
-static const char dmenufont[]       = "monospace:size=10"; // "Terminus:size=10"
-static const char col_gray1[]       = "#000000";  // changes main color of bar
-static const char col_gray2[]       = "#000000";  // changes the border color of inactive window 'the window that you don't have your mouse on'
-static const char col_gray3[]       = "#FFFFFF";  // changes the font color for the number that you are not on
-static const char col_gray4[]       = "#FFFFFF";  // changes the font color for the number that you are on and the font color for what app you're using firefox,urxvt
-static const char col_cyan[]        = "#222222";  // changescolorsurroundingthecurrentnumberyou'reon,thecolorsurroundingwhatappyouareusingandcurrentwindowbordercolor
+static const int showbar            = 1;        /* 0 means no bar */
+static const int topbar             = 1;        /* 0 means bottom bar */
+static const char *fonts[]          = { "monospace:size=10" };
+static const char dmenufont[]       = "monospace:size=10";
+static const char col_gray1[]       = "#000000";	/* main color of bar */
+static const char col_gray2[]       = "#000000";	/* border color of inactive window */
+static const char col_gray3[]       = "#FFFFFF";	/* font color of inactive desktop # */
+static const char col_gray4[]       = "#FFFFFF";	/* font color of active desktop # & currently using application */
+static const char col_cyan[]        = "#222222";	/* border color of active desktop # & current window */
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
 	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
@@ -29,7 +28,7 @@ static const Rule rules[] = {
 	 */
 	/* class      instance    title       tags mask     isfloating   monitor */
 	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
-	{ "Firefox",  NULL,       NULL,       0,            0,           -1 },
+	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
 };
 
 /* layout(s) */
@@ -41,8 +40,8 @@ static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen win
 static const Layout layouts[] = {
 	/* symbol     arrange function */
 	{ "[]=",      tile },    /* first entry is default */
-//	{ "><>",      NULL },    /* no layout function means floating behavior */
-//	{ "[M]",      monocle },
+	{ "><>",      NULL },    /* no layout function means floating behavior */
+	{ "[M]",      monocle },
 };
 
 /* key definitions */
@@ -58,27 +57,27 @@ static const Layout layouts[] = {
 
 /* commands */
 #include <X11/XF86keysym.h>
+static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
+static const char *dmenucmd[]   = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
+static const char *termcmd[]    = { "urxvt", NULL };
 static const char *upvol[]      = { "/usr/bin/wpctl",   "set-volume", "@DEFAULT_AUDIO_SINK@",      "5%+",      NULL };
 static const char *downvol[]    = { "/usr/bin/wpctl",   "set-volume", "@DEFAULT_AUDIO_SINK@",      "5%-",      NULL };
 static const char *mutevol[]    = { "/usr/bin/wpctl",   "set-mute",   "@DEFAULT_AUDIO_SINK@",      "toggle",   NULL };
-static const char *brupcmd[] = { "brightnessctl", "set", "1%+", NULL };
-static const char *brdowncmd[] = { "brightnessctl", "set", "1%-", NULL };
-static const char *dmenucmd[] = { "dmenu_run", "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
-static const char *termcmd[]  = { "urxvt", NULL };
-static const char *pcmanfmcmd[] = { "pcmanfm", NULL };
+static const char *brupcmd[]    = { "brightnessctl", "set", "5%+", NULL };
+static const char *brdowncmd[]  = { "brightnessctl", "set", "5%-", NULL };
+static const char *filemgcmd[]  = { "pcmanfm", NULL };
 static const char *browsercmd[] = { "librewolf", NULL };
-static const char *slockcmd[] = { "slock", NULL };
-static const char *pavucontrolcmd[] = { "pavucontrol", NULL };
-
-
+static const char *lockcmd[]    = { "slock", NULL };
+static const char *volguicmd[]  = { "pavucontrol", NULL };
+static const char *screenshot[] = { "spectacle", NULL };
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
-	{ MODKEY,			XK_e,	   spawn,	   {.v = pcmanfmcmd } },
+	{ MODKEY,			XK_e,	   spawn,	   {.v = filemgcmd } },
 	{ MODKEY,			XK_w,	   spawn,	   {.v = browsercmd } },
-	{ MODKEY,			XK_l,	   spawn,	   {.v = slockcmd } },
-        { MODKEY,			XK_s,	   spawn,	   {.v = pavucontrolcmd } },	
+	{ MODKEY,			XK_l,	   spawn,	   {.v = lockcmd } },
+        { MODKEY,			XK_s,	   spawn,	   {.v = volguicmd } },	
 //	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_z,      focusstack,     {.i = +1 } },
 //	{ MODKEY,                       XK_x,      focusstack,     {.i = -1 } },
@@ -110,13 +109,15 @@ static const Key keys[] = {
 	TAGKEYS(                        XK_7,                      6)
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
-	{ 0,                       XF86XK_AudioLowerVolume, spawn, {.v = downvol } },
-	{ 0,                       XF86XK_AudioMute, spawn, {.v = mutevol } },
-	{ 0,                       XF86XK_AudioRaiseVolume, spawn, {.v = upvol   } },
-	{ 0, XF86XK_MonBrightnessUp,  spawn,          {.v = brupcmd} },
-        { 0, XF86XK_MonBrightnessDown, spawn,          {.v = brdowncmd} },
+	{ 0,                            XF86XK_AudioLowerVolume, spawn, {.v = downvol } },
+	{ 0,                            XF86XK_AudioMute,        spawn, {.v = mutevol } },
+	{ 0,                            XF86XK_AudioRaiseVolume, spawn, {.v = upvol   } },
+	{ 0, XF86XK_MonBrightnessUp,    spawn,                          {.v = brupcmd} },
+        { 0, XF86XK_MonBrightnessDown,  spawn,                          {.v = brdowncmd} },
 	{ MODKEY|ShiftMask,             XK_e,      quit,           {0} },
+	{ MODKEY|ShiftMask,		XK_s,	   spawn,	   {.v = screenshot} },
 };
+
 
 /* button definitions */
 /* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
@@ -126,10 +127,10 @@ static const Button buttons[] = {
 	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
 	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
 	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
-	{ ClkStatusText,	0,		Button2,	spawn,		{.v = pcmanfmcmd } },
+	{ ClkStatusText,	0,		Button2,	spawn,		{.v = filemgcmd } },
 	{ ClkStatusText,	0,		Button2,	spawn,		{.v = browsercmd } },
-	{ ClkStatusText,	0,		Button2,	spawn,		{.v = slockcmd } },
-	{ ClkStatusText,	0,		Button2,	spawn,		{.v = pavucontrolcmd } },
+	{ ClkStatusText,	0,		Button2,	spawn,		{.v = lockcmd } },
+	{ ClkStatusText,	0,		Button2,	spawn,		{.v = volguicmd } },
 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
 	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
 	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
