@@ -11,7 +11,7 @@ static const char col_gray1[]       = "#000000";	/* main color of bar */
 static const char col_gray2[]       = "#000000";	/* border color of inactive window */
 static const char col_gray3[]       = "#FFFFFF";	/* font color of inactive desktop # */
 static const char col_gray4[]       = "#FFFFFF";	/* font color of active desktop # & currently using application */
-static const char col_cyan[]        = "#222222";	/* border color of active desktop # & current window */
+static const char col_cyan[]        = "#333333";	/* border color of active desktop # & current window */
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
 	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
@@ -36,6 +36,7 @@ static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] 
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
+static const int refreshrate = 120;  /* refresh rate (per second) for client move/resize */
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
@@ -59,17 +60,22 @@ static const Layout layouts[] = {
 #include <X11/XF86keysym.h>
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[]   = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
-static const char *termcmd[]    = { "urxvt", NULL };
+static const char *termcmd[]    = { "st", NULL };
 static const char *upvol[]      = { "/usr/bin/wpctl",   "set-volume", "@DEFAULT_AUDIO_SINK@",      "5%+",      NULL };
 static const char *downvol[]    = { "/usr/bin/wpctl",   "set-volume", "@DEFAULT_AUDIO_SINK@",      "5%-",      NULL };
 static const char *mutevol[]    = { "/usr/bin/wpctl",   "set-mute",   "@DEFAULT_AUDIO_SINK@",      "toggle",   NULL };
 static const char *brupcmd[]    = { "brightnessctl", "set", "5%+", NULL };
 static const char *brdowncmd[]  = { "brightnessctl", "set", "5%-", NULL };
-static const char *filemgcmd[]  = { "pcmanfm", NULL };
+static const char *filemgcmd[]  = { "urxvt", "-e", "mc", "--nocolor", NULL };
 static const char *browsercmd[] = { "librewolf", NULL };
 static const char *lockcmd[]    = { "slock", NULL };
 static const char *volguicmd[]  = { "pavucontrol", NULL };
-static const char *screenshot[] = { "spectacle", NULL };
+static const char *screenshot[] = {
+    "sh", "-c",
+    "dir=\"$HOME/Pictures/Screenshots\"; mkdir -p \"$dir\"; file=\"$dir/$(date '+%Y-%m-%d_%H-%M-%S').png\"; maim --select \"$file\" && xclip -selection clipboard -t image/png -i \"$file\"",
+    NULL
+};
+
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },
@@ -139,4 +145,3 @@ static const Button buttons[] = {
 	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
 	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
 };
-
