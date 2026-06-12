@@ -11,11 +11,13 @@ static const char col_gray1[]       = "#000000";	/* main color of bar */
 static const char col_gray2[]       = "#000000";	/* border color of inactive window */
 static const char col_gray3[]       = "#FFFFFF";	/* font color of inactive desktop # */
 static const char col_gray4[]       = "#FFFFFF";	/* font color of active desktop # & currently using application */
-static const char col_cyan[]        = "#333333";	/* border color of active desktop # & current window */
+static const char col_cyan[]        = "#333333";	/* selected tag/window title color */
+static const char col_selborder[]   = "#333333"; 	/* active window border */
+
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
 	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
-	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
+	[SchemeSel]  = { col_gray4, col_cyan,  col_selborder  },
 };
 
 /* tagging */
@@ -69,7 +71,8 @@ static const char *brdowncmd[]  = { "brightnessctl", "set", "5%-", NULL };
 static const char *filemgcmd[]  = { "st", "lf", NULL };
 static const char *browsercmd[] = { "librewolf", NULL };
 static const char *lockcmd[]    = { "slock", NULL };
-static const char *volguicmd[]  = { "pulsemixer", NULL };
+static const char *voluicmd[]   = { "st", "pulsemixer", NULL };
+static const char *mailclicmd[] = { "st", "aerc", NULL };
 static const char *screenshot[] = {
     "sh", "-c",
     "dir=\"$HOME/Pictures/Screenshots\"; mkdir -p \"$dir\"; file=\"$dir/$(date '+%Y-%m-%d_%H-%M-%S').png\"; maim --select \"$file\" && xclip -selection clipboard -t image/png -i \"$file\"",
@@ -83,7 +86,8 @@ static const Key keys[] = {
 	{ MODKEY,			XK_e,	   spawn,	   {.v = filemgcmd } },
 	{ MODKEY,			XK_w,	   spawn,	   {.v = browsercmd } },
 	{ MODKEY,			XK_l,	   spawn,	   {.v = lockcmd } },
-        { MODKEY,			XK_s,	   spawn,	   {.v = volguicmd } },	
+        { MODKEY,			XK_s,	   spawn,	   {.v = voluicmd } },
+	{ MODKEY,			XK_m,	   spawn, 	   {.v = mailclicmd } },
 //	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_z,      focusstack,     {.i = +1 } },
 //	{ MODKEY,                       XK_x,      focusstack,     {.i = -1 } },
@@ -136,7 +140,8 @@ static const Button buttons[] = {
 	{ ClkStatusText,	0,		Button2,	spawn,		{.v = filemgcmd } },
 	{ ClkStatusText,	0,		Button2,	spawn,		{.v = browsercmd } },
 	{ ClkStatusText,	0,		Button2,	spawn,		{.v = lockcmd } },
-	{ ClkStatusText,	0,		Button2,	spawn,		{.v = volguicmd } },
+	{ ClkStatusText,	0,		Button2,	spawn,		{.v = voluicmd } },
+	{ ClkStatusText, 	0, 		Button2, 	spawn, 		{.v = mailclicmd } },
 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
 	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
 	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
