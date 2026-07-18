@@ -48,12 +48,20 @@ static const Layout layouts[] = {
 };
 
 /* key definitions */
-#define MODKEY Mod4Mask
+#define MODKEY Mod4Mask /* Super/Windows key */
+
+/*
+ * For each numbered tag:
+ * Super+[1-9]            = view only that tag
+ * Super+Ctrl+[1-9]       = add/remove that tag from the current view
+ * Super+Shift+[1-9]      = move the focused window to that tag
+ * Super+Ctrl+Shift+[1-9] = add/remove that tag on the focused window
+ */
 #define TAGKEYS(KEY,TAG) \
-	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
+	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, /* view this tag */ \
+	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, /* toggle this tag in the current view */ \
+	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, /* move focused window to this tag */ \
+	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} }, /* toggle this tag on focused window */
 
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
@@ -63,9 +71,9 @@ static const Layout layouts[] = {
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[]   = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 static const char *termcmd[]    = { "st", NULL };
-static const char *upvol[]      = { "/usr/bin/wpctl",   "set-volume", "@DEFAULT_AUDIO_SINK@",      "5%+",      NULL };
-static const char *downvol[]    = { "/usr/bin/wpctl",   "set-volume", "@DEFAULT_AUDIO_SINK@",      "5%-",      NULL };
-static const char *mutevol[]    = { "/usr/bin/wpctl",   "set-mute",   "@DEFAULT_AUDIO_SINK@",      "toggle",   NULL };
+static const char *upvol[]   = { "/usr/bin/pulsemixer", "--change-volume", "+5", NULL };
+static const char *downvol[] = { "/usr/bin/pulsemixer", "--change-volume", "-5", NULL };
+static const char *mutevol[] = { "/usr/bin/pulsemixer", "--toggle-mute", NULL };
 static const char *brupcmd[]    = { "brightnessctl", "set", "5%+", NULL };
 static const char *brdowncmd[]  = { "brightnessctl", "set", "5%-", NULL };
 static const char *filemgcmd[]  = { "st", "lf", NULL };
@@ -80,52 +88,55 @@ static const char *screenshot[] = {
 };
 
 static const Key keys[] = {
-	/* modifier                     key        function        argument */
-	{ MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },
-	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
-	{ MODKEY,			XK_e,	   spawn,	   {.v = filemgcmd } },
-	{ MODKEY,			XK_w,	   spawn,	   {.v = browsercmd } },
-	{ MODKEY,			XK_l,	   spawn,	   {.v = lockcmd } },
-        { MODKEY,			XK_s,	   spawn,	   {.v = voluicmd } },
-	{ MODKEY,			XK_m,	   spawn, 	   {.v = mailclicmd } },
-//	{ MODKEY,                       XK_b,      togglebar,      {0} },
-	{ MODKEY,                       XK_z,      focusstack,     {.i = +1 } },
-//	{ MODKEY,                       XK_x,      focusstack,     {.i = -1 } },
-//	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
-//	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
-//	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
-//	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
-	{ MODKEY,                       XK_x,      zoom,           {0} },
-//	{ MODKEY,                       XK_Tab,    view,           {0} },
-	{ MODKEY,                       XK_q,      killclient,     {0} },
-//	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
-//	{ MODKEY|ShiftMask,             XK_f,      setlayout,      {.v = &layouts[1]} },
-//	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
-//	{ MODKEY,                       XK_space,  setlayout,      {0} },
-//	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
-//	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
-//	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
-	{ MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
-	{ MODKEY,                       XK_period, focusmon,       {.i = +1 } },
-	{ MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
-	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
-	{ MODKEY,                       XK_f,      togglefullscr,  {0} },
-	TAGKEYS(                        XK_1,                      0)
-	TAGKEYS(                        XK_2,                      1)
-	TAGKEYS(                        XK_3,                      2)
-	TAGKEYS(                        XK_4,                      3)
-	TAGKEYS(                        XK_5,                      4)
-	TAGKEYS(                        XK_6,                      5)
-	TAGKEYS(                        XK_7,                      6)
-	TAGKEYS(                        XK_8,                      7)
-	TAGKEYS(                        XK_9,                      8)
-	{ 0,                            XF86XK_AudioLowerVolume, spawn, {.v = downvol } },
-	{ 0,                            XF86XK_AudioMute,        spawn, {.v = mutevol } },
-	{ 0,                            XF86XK_AudioRaiseVolume, spawn, {.v = upvol   } },
-	{ 0, XF86XK_MonBrightnessUp,    spawn,                          {.v = brupcmd} },
-        { 0, XF86XK_MonBrightnessDown,  spawn,                          {.v = brdowncmd} },
-	{ MODKEY|ShiftMask,             XK_e,      quit,           {0} },
-	{ MODKEY|ShiftMask,		XK_s,	   spawn,	   {.v = screenshot} },
+	/* modifier                     key        function        argument               description */
+	{ MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },     /* Super+d: open dmenu application launcher */
+	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },      /* Super+Enter: open st terminal */
+	{ MODKEY,                       XK_e,      spawn,          {.v = filemgcmd } },    /* Super+e: open lf file manager in st */
+	{ MODKEY,                       XK_w,      spawn,          {.v = browsercmd } },   /* Super+w: open LibreWolf */
+	{ MODKEY,                       XK_l,      spawn,          {.v = lockcmd } },      /* Super+l: lock the X session with slock */
+	{ MODKEY,                       XK_s,      spawn,          {.v = voluicmd } },     /* Super+s: open pulsemixer in st */
+	{ MODKEY,                       XK_m,      spawn,          {.v = mailclicmd } },   /* Super+m: open aerc in st */
+
+	{ MODKEY,                       XK_b,      togglebar,      {0} },                  /* Super+b: show or hide the dwm bar */
+	{ MODKEY,                       XK_z,      focusstack,     {.i = +1 } },           /* Super+z: focus next window in the stack */
+	{ MODKEY|ShiftMask,             XK_z,      focusstack,     {.i = -1 } },           /* Super+Shift+z: focus previous window */
+	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },           /* Super+i: add one window to master area */
+	{ MODKEY,                       XK_o,      incnmaster,     {.i = -1 } },           /* Super+o: remove one window from master area */
+	{ MODKEY,                       XK_j,      setmfact,       {.f = -0.05} },         /* Super+j: shrink master area by 5% */
+	{ MODKEY,                       XK_k,      setmfact,       {.f = +0.05} },         /* Super+k: enlarge master area by 5% */
+	{ MODKEY,                       XK_x,      zoom,           {0} },                  /* Super+x: swap focused window with master */
+	{ MODKEY,                       XK_Tab,    view,           {0} },                  /* Super+Tab: return to previous tag view */
+	{ MODKEY,                       XK_q,      killclient,     {0} },                  /* Super+q: close focused window */
+	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },   /* Super+t: use tiled layout */
+	{ MODKEY|ShiftMask,             XK_f,      setlayout,      {.v = &layouts[1]} },   /* Super+Shift+f: use floating layout */
+	{ MODKEY|ShiftMask,             XK_m,      setlayout,      {.v = &layouts[2]} },   /* Super+Shift+m: use monocle layout */
+	{ MODKEY,                       XK_space,  setlayout,      {0} },                  /* Super+Space: toggle current/previous layout */
+	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },                 /* Super+Shift+Space: tile/float focused window */
+	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },          /* Super+0: view all tags together */
+	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },          /* Super+Shift+0: assign focused window to all tags */
+	{ MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },           /* Super+,: focus previous monitor */
+	{ MODKEY,                       XK_period, focusmon,       {.i = +1 } },           /* Super+.: focus next monitor */
+	{ MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },           /* Super+Shift+,: move window to previous monitor */
+	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },           /* Super+Shift+.: move window to next monitor */
+	{ MODKEY,                       XK_f,      togglefullscr,  {0} },                  /* Super+f: toggle fullscreen on focused window */
+
+	TAGKEYS(                        XK_1,                      0)                       /* generate the four tag-1 bindings above */
+	TAGKEYS(                        XK_2,                      1)                       /* generate the four tag-2 bindings above */
+	TAGKEYS(                        XK_3,                      2)                       /* generate the four tag-3 bindings above */
+	TAGKEYS(                        XK_4,                      3)                       /* generate the four tag-4 bindings above */
+	TAGKEYS(                        XK_5,                      4)                       /* generate the four tag-5 bindings above */
+	TAGKEYS(                        XK_6,                      5)                       /* generate the four tag-6 bindings above */
+	TAGKEYS(                        XK_7,                      6)                       /* generate the four tag-7 bindings above */
+	TAGKEYS(                        XK_8,                      7)                       /* generate the four tag-8 bindings above */
+	TAGKEYS(                        XK_9,                      8)                       /* generate the four tag-9 bindings above */
+
+	{ 0,                            XF86XK_AudioLowerVolume, spawn, {.v = downvol } }, /* volume-down key: decrease volume by 5% */
+	{ 0,                            XF86XK_AudioMute,        spawn, {.v = mutevol } }, /* mute key: toggle audio mute */
+	{ 0,                            XF86XK_AudioRaiseVolume, spawn, {.v = upvol   } }, /* volume-up key: increase volume by 5% */
+	{ 0,                            XF86XK_MonBrightnessUp,  spawn, {.v = brupcmd } }, /* brightness-up key: increase brightness by 5% */
+	{ 0,                            XF86XK_MonBrightnessDown,spawn, {.v = brdowncmd} }, /* brightness-down key: decrease brightness by 5% */
+	{ MODKEY|ShiftMask,             XK_e,      quit,           {0} },                  /* Super+Shift+e: quit dwm/end X session */
+	{ MODKEY|ShiftMask,             XK_s,      spawn,          {.v = screenshot} },    /* Super+Shift+s: select, save, and copy screenshot */
 };
 
 
